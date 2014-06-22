@@ -1,0 +1,26 @@
+#!/bin/sh
+
+BACKUPDIR="/opt/backup/vhosts/"
+WEBDIR="/var/www/"
+
+# Check if directory exists. If not, create it.
+function check_directory () {
+    if [ ! -e "${1}" ]          # Check if Directory exists.
+        then
+        mkdir -p "${1}"
+    fi
+}
+
+check_directory ${BACKUPDIR}
+
+for DIR in $(ls ${WEBDIR} | egrep ^[a-z.]*$)
+do
+    echo $WEBDIR$DIR
+if [ -f $WEBDIR$DIR/.DONT_BACKUP ]
+    then
+        echo "\tSKIPPING $DIR as it contains ignore file\n"
+    else
+        echo "\tBACKUP $DIR...\n"
+        tar -zcf ${BACKUPDIR}${DIR}.`date +%u`.site.tar.gz ${WEBDIR}${DIR}
+    fi
+done
